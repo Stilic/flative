@@ -100,7 +100,7 @@ discussions = ListBox(APP, items=[], height="fill", width="fill",
                       align="left", scrollbar=True, command=changeDiscussion)
 
 discussionText = HTMLScrolledText(
-    APP.tk, html='<h1 style="color: red; text-align: center"> Hello World </H1>')
+    APP.tk)
 APP.add_tk_widget(discussionText)
 
 menubar = MenuBar(APP, toplevel=["File"], options=[
