@@ -1,6 +1,8 @@
 # Flative
 A native client for your Flarum-powered communities
 
+![](assets/capture.png)
+
 ## Setup
 ```sh
 # setup dependancies

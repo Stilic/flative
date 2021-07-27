@@ -1,0 +1,106 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Flative Alpha\n"
+"POT-Creation-Date: 2021-07-27 22:23+0200\n"
+"PO-Revision-Date: 2021-07-27 22:24+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.0\n"
+"X-Poedit-Basepath: ../../..\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: main.py:33
+msgid "<h1>Loading...</h1>"
+msgstr "<h1>chargement...</h1>"
+
+#: main.py:45
+msgid ""
+"<div padding: 20px; margin: 10px 0;\"><div style=\"margin-bottom: 10px;"
+"\"><h3>Post #{post.number}:</h3>\n"
+"<b>{post_author.username if post_author else _('[deleted]')}</b> <i>on {post."
+"createdAt.strftime(r'%d %B %Y')} at {post.createdAt.strftime(r'%H:%M:%S')}</"
+"i></div>\n"
+"{post.contentHtml}\n"
+"<a href=\"{post.url}\" style=\"font-size: 10px;\">Open original post in your "
+"browser</a>\n"
+"\n"
+msgstr ""
+"<div padding: 20px; margin: 10px 0;\"><div style=\"margin-bottom: 10px;"
+"\"><h3>Post #{post.number} :</h3>\n"
+"<b>{post_author.username if post_author else _('[deleted]')}</b> <i>le {post."
+"createdAt.strftime(r'%d %B %Y')} à {post.createdAt.strftime(r'%H:%M:%S')}</"
+"i></div>\n"
+"{post.contentHtml}\n"
+"<a href=\"{post.url}\" style=\"font-size: 10px;\">Ouvrir le post d’origine "
+"dans votre navigateur</a>\n"
+"\n"
+"</div>\n"
+
+#: main.py:71
+msgid "There are no discussions to be shown."
+msgstr "Il n’y a pas de discussions à montrer."
+
+#: main.py:164
+msgid "Previous"
+msgstr "Précédent"
+
+#: main.py:175
+msgid "Next"
+msgstr "Suivant"
+
+#: main.py:187
+msgid "Goto page: "
+msgstr "Aller à la page : "
+
+#: main.py:196
+msgid "Goto"
+msgstr "Aller"
+
+#: main.py:208
+msgid "Search for discussions: "
+msgstr "Rechercher des discussions : "
+
+#: main.py:218
+msgid "Search"
+msgstr "Rechercher"
+
+#: main.py:226
+msgid "Relevance"
+msgstr "Pertinence"
+
+#: main.py:227
+msgid "Top"
+msgstr ""
+
+#: main.py:228
+msgid "Latest"
+msgstr "Récents"
+
+#: main.py:229
+msgid "Oldest"
+msgstr "Anciens"
+
+#: main.py:230
+msgid "Newest"
+msgstr "Nouveaux"
+
+#: main.py:251
+msgid "Options"
+msgstr ""
+
+#: main.py:253
+msgid "Reload"
+msgstr "Recharger"
+
+#: main.py:254
+msgid "Clear cache"
+msgstr "Nettoyer le cache"
+
+#: main.py:255
+msgid "Exit"
+msgstr "Quitter"
