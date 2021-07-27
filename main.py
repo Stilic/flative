@@ -1,7 +1,6 @@
-from pyflarum import FlarumUser, Filter
+from pyflarum import FlarumUser, Filter, FlarumError
 
 from guizero import *
-import requests_cache
 from tk_html_widgets import HTMLLabel
 
 from requests import Session
@@ -9,17 +8,59 @@ from requests_cache import CachedSession
 
 
 APP = App(title="Flative", width=1700, height=800)
+
 PER_PAGINATION_GROUP = 20
 MAX_PAGINATION_GROUPS = None
-USE_CACHE = True
 
+
+USE_CACHE = True
 if USE_CACHE:
     session_obj = CachedSession()
 else:
     session_obj = Session()
 
-USER = FlarumUser(forum_url="https://discuss.flarum.org",
-                  session_object=session_obj)
+
+USER = FlarumUser(
+    forum_url="https://discuss.flarum.org",
+    session_object=session_obj
+)
+
+
+def authenticate():
+    username = auth_username_input.value
+    password = auth_password_input.value
+    forum_url = auth_forum_url_input.value
+
+    clearCache()
+    auth_status.value = ""
+
+
+    if len(forum_url) >= 12: # minimum domain legth (http://x.x.x)
+        USER.forum_url = forum_url
+        auth_status.value += "Forum URL updated. "
+        auth_status.text_color = "green"
+
+    else:
+        auth_status.value += "Forum URL is invalid. "
+        auth_status.text_color = "red"
+
+
+    try:
+        USER.authenticate(
+            username=username if len(username) > 0 else None,
+            password=password if len(password) > 0 else None
+        )
+
+        auth_status.value += "You are now logged in. "
+        auth_status.text_color = "green"
+
+    except FlarumError as error:
+        auth_status.value = error
+        auth_status.text_color = "red"
+
+    print(USER.is_authenticated)
+    reloadDiscussions()
+
 
 
 def changeDiscussion(title):
@@ -46,7 +87,7 @@ def reloadDiscussions():
     if order_by == 'relevance':
         order_by = None
 
-    for discussion in USER.all_discussions(Filter(query=search_box.value, page=int(pagination.value) - 1, limit=50, order_by=order_by)):
+    for discussion in USER.all_discussions(Filter(query=search_input.value, page=int(pagination.value) - 1, limit=50, order_by=order_by)):
         discussions.append(f"{discussion.id} | {discussion.title}")
         discussionsIdsCache.append(discussion.id)
 
@@ -140,12 +181,68 @@ def changePage(back: bool = False):
 
 def clearCache():
     try:
-        requests_cache.clear()
-        print("Cache was successfuly cleared.")
+        USER.session.cache.clear()
+        print("Cache was cleared.")
 
-    except FileNotFoundError as error:
-        print(f"The cache file was not found: {error}")
+    except: # not using a cache
         pass
+
+
+AUTH_BOX = Box(APP, width="fill", layout="grid")
+auth_forum_url_label = Text(AUTH_BOX,
+    grid=[0, 0],
+    size=10,
+    align="left",
+    text="Forum URL: "
+)
+
+auth_forum_url_input = TextBox(AUTH_BOX,
+    grid=[1, 0],
+    align="left",
+    text="https://discuss.flarum.org",
+    width=50
+)
+
+auth_username_label = Text(AUTH_BOX,
+    grid=[0, 2],
+    size=10,
+    align="left",
+    text="Username (optional): "
+)
+
+auth_username_input = TextBox(AUTH_BOX,
+    grid=[1, 2],
+    align="left",
+    width=50
+)
+
+auth_password_label = Text(AUTH_BOX,
+    grid=[0, 3],
+    size=10,
+    align="left",
+    text="Password (optional): "
+)
+
+auth_password_input = TextBox(AUTH_BOX,
+    grid=[1, 3],
+    width=50,
+    align="left",
+    hide_text=True
+)
+
+auth_button = PushButton(AUTH_BOX,
+    grid=[1, 4],
+    text="Update",
+    command=authenticate,
+    pady=0,
+    padx=130
+)
+
+auth_status = Text(AUTH_BOX,
+    grid=[1, 6],
+    size=10,
+    text=""
+)
 
 
 PAGINATION_BOX = Box(APP, width="fill", layout="grid", align="bottom")
@@ -205,7 +302,7 @@ search_label = Text(SEARCH_BOX,
     text="Search for discussions: "
 )
 
-search_box = TextBox(SEARCH_BOX,
+search_input = TextBox(SEARCH_BOX,
     grid=[1, 0],
     width=50
 )
