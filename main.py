@@ -46,13 +46,18 @@ def authenticate():
 
 
     try:
-        USER.authenticate(
-            username=username if len(username) > 0 else None,
-            password=password if len(password) > 0 else None
-        )
+        if len(username) > 0 and len(password) > 0:
+            USER.authenticate(
+                username=username,
+                password=password
+            )
 
-        auth_status.value += "You are now logged in. "
-        auth_status.text_color = "green"
+            auth_status.value += "You are now logged in. "
+            auth_status.text_color = "green"
+
+        else:
+            auth_status.value += "You are now browsing in guest mode (unauthenticated). "
+            auth_status.text_color = "orange"
 
     except FlarumError as error:
         auth_status.value = error
