@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+http_cache.sqlite
 
 # C extensions
 *.so
