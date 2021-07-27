@@ -36,7 +36,7 @@ def changeDiscussion(title):
     for post in posts:
         if post.contentType == "comment":
             post_author = post.get_author()
-            html += f'''<div border-radius: 40px; padding: 20px; margin: 10px 0; background: blue;"><div style="margin-bottom: 10px;"><h3>Post #{post.number}:</h3>\n<b>{post_author.username if post_author else '[deleted]'}</b> <i>on {post.createdAt.strftime(r'%H:%M:%S  %d %B %Y')}</i></div>\n<div>{post.contentHtml}</div>\n<a href="{post.url}" style="font-size: 10px;">Open original post in your browser</a></div>\n\n'''
+            html += f'''<div padding: 20px; margin: 10px 0;"><div style="margin-bottom: 10px;"><h3>Post #{post.number}:</h3>\n<b>{post_author.username if post_author else '[deleted]'}</b> <i>on {post.createdAt.strftime(r'%H:%M:%S  %d %B %Y')}</i></div>\n{post.contentHtml}\n<a href="{post.url}" style="font-size: 10px;">Open original post in your browser</a>\n\n'''
 
     discussionText.tag_delete(discussionText.tag_names)
     discussionText.set_html(html, strip=False)
