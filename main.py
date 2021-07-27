@@ -17,7 +17,7 @@ USE_CACHE = True
 if USE_CACHE:
     session_obj = CachedSession()
 else:
-    session_obj = Session
+    session_obj = Session()
 
 USER = FlarumUser(forum_url="https://discuss.flarum.org", session_object=session_obj)
 
