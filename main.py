@@ -50,8 +50,12 @@ def reloadDiscussions():
         discussions.append(f"{discussion.id} | {discussion.title}")
         discussionsIdsCache.append(discussion.id)
 
-    discussions.value = discussions.items[0]
-    changeDiscussion(discussions.value)
+    if len(discussions.items) > 0:
+        discussions.value = discussions.items[0]
+        changeDiscussion(discussions.value)
+
+    else:
+        discussions.append("There are no discussions to be shown.")
 
 
 def changePage(back: bool = False):
