@@ -8,6 +8,11 @@ from tkhtmlview import HTMLScrolledText
 from requests import Session
 from requests_cache import CachedSession
 
+import gettext
+translate = gettext.translation("flative", os.path.join(
+    os.path.abspath(os.path.dirname(__file__)), "locale"), fallback=True)
+_ = translate.gettext
+
 
 APP = App(title="Flative", width=1700, height=800)
 
@@ -71,7 +76,7 @@ def authenticate():
 
 def changeDiscussion(title):
     discussions.disable()
-    discussionText.set_html("<h2>Loading...</h2>")
+    discussionText.set_html(_("<h1>Loading...</h1>"))
     discussionText.fit_height()
     id = discussionsIdsCache[discussions.items.index(title)]
     discussion = USER.get_discussion_by_id(id)
@@ -82,7 +87,8 @@ def changeDiscussion(title):
     for post in posts:
         if post.contentType == "comment":
             post_author = post.get_author()
-            html += f'''<div style="padding: 20px; margin: 10px 0; font-size: 10px;"><div style="margin-bottom: 10px;"><h3>Post #{post.number}:</h3>\n<b>{post_author.username if post_author else '[deleted]'}</b> <i>on {post.createdAt.strftime(r'%H:%M:%S  %d %B %Y')}</i></div>\n{post.contentHtml}\n  <a href="{post.url}" style="font-size: 9px;"><i>&#x3E;&#x3E; Open original post in your browser</i></a>\n\n'''
+            html += _(
+                f'''<div padding: 20px; margin: 10px 0;"><div style="margin-bottom: 10px;"><h3>Post #{post.number}:</h3>\n<b>{post_author.username if post_author else _('[deleted]')}</b> <i>on {post.createdAt.strftime(r'%d %B %Y')} at {post.createdAt.strftime(r'%H:%M:%S')}</i></div>\n{post.contentHtml}\n<a href="{post.url}" style="font-size: 10px;">Open original post in your browser</a>\n\n''')
 
     discussionText.tag_delete(discussionText.tag_names)
     discussionText.set_html(html, strip=False)
@@ -108,7 +114,7 @@ def reloadDiscussions():
         changeDiscussion(discussions.value)
 
     else:
-        discussions.append("There are no discussions to be shown.")
+        discussions.append(_("There are no discussions to be shown."))
 
 
 def changePage(back: bool = False):
@@ -257,7 +263,7 @@ pagination = ButtonGroup(PAGINATION_BOX,
 
 previous_page_button = PushButton(PAGINATION_BOX,
                                   grid=[0, 0],
-                                  text="Previous",
+                                  text=_("Previous"),
                                   align="left",
                                   command=changePage,
                                   args=[True],
@@ -268,7 +274,7 @@ previous_page_button = PushButton(PAGINATION_BOX,
 
 next_page_button = PushButton(PAGINATION_BOX,
                               grid=[2, 0],
-                              text="Next",
+                              text=_("Next"),
                               align="right",
                               command=changePage,
                               pady=2,
@@ -280,7 +286,7 @@ goto_page_label = Text(PAGINATION_BOX,
                        grid=[3, 0],
                        height=2,
                        size=10,
-                       text="Goto page: "
+                       text=_("Goto page: ")
                        )
 
 goto_page = TextBox(PAGINATION_BOX,
@@ -289,7 +295,7 @@ goto_page = TextBox(PAGINATION_BOX,
 
 goto_page_button = PushButton(PAGINATION_BOX,
                               grid=[5, 0],
-                              text="Goto",
+                              text=_("Goto"),
                               command=changePage,
                               pady=0,
                               padx=0
@@ -301,7 +307,7 @@ search_label = Text(SEARCH_BOX,
                     grid=[0, 0],
                     height=2,
                     size=10,
-                    text="Search for discussions: "
+                    text=_("Search for discussions: ")
                     )
 
 search_input = TextBox(SEARCH_BOX,
@@ -311,7 +317,7 @@ search_input = TextBox(SEARCH_BOX,
 
 search_button = PushButton(SEARCH_BOX,
                            grid=[2, 0],
-                           text="Search",
+                           text=_("Search"),
                            command=reloadDiscussions,
                            pady=0,
                            padx=0
@@ -319,11 +325,11 @@ search_button = PushButton(SEARCH_BOX,
 
 search_order_by = ButtonGroup(SEARCH_BOX,
                               options=[
-                                  ["Relevance", "relevance"],
-                                  ["Top", "commentCount"],
-                                  ["Latest", "-commentCount"],
-                                  ["Oldest", "createdAt"],
-                                  ["Newest", "-createdAt"],
+                                  [_("Relevance"), "relevance"],
+                                  [_("Top"), "commentCount"],
+                                  [_("Latest"), "-commentCount"],
+                                  [_("Oldest"), "createdAt"],
+                                  [_("Newest"), "-createdAt"],
                               ],
                               selected="relevance",
                               horizontal=True,
@@ -344,11 +350,11 @@ discussions = ListBox(APP,
 
 
 menubar = MenuBar(APP,
-                  toplevel=["Options"],
+                  toplevel=[_("Options")],
                   options=[[
-                      ["Reload", reloadDiscussions],
-                      ["Clear cache", clearCache],
-                      ["Exit", exit]
+                      [_("Reload"), reloadDiscussions],
+                      [_("Clear cache"), clearCache],
+                      [_("Exit"), exit]
                   ]]
                   )
 
