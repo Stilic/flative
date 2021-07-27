@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Flative Alpha\n"
-"POT-Creation-Date: 2021-07-27 22:23+0200\n"
-"PO-Revision-Date: 2021-07-27 22:24+0200\n"
+"POT-Creation-Date: 2021-07-28 00:02+0200\n"
+"PO-Revision-Date: 2021-07-28 00:02+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -14,11 +14,27 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: main.py:33
+#: main.py:47
+msgid "Forum URL updated. "
+msgstr "URL du forum mise à jour. "
+
+#: main.py:51
+msgid "Forum URL is invalid. "
+msgstr "L’URL du forum n’est pas valide. "
+
+#: main.py:62
+msgid "You are now logged in. "
+msgstr "Vous êtes maintenant connecté. "
+
+#: main.py:66
+msgid "You are now browsing in guest mode (unauthenticated). "
+msgstr "Vous naviguez maintenant en mode invité (non authentifié). "
+
+#: main.py:79
 msgid "<h1>Loading...</h1>"
 msgstr "<h1>chargement...</h1>"
 
-#: main.py:45
+#: main.py:91
 msgid ""
 "<div padding: 20px; margin: 10px 0;\"><div style=\"margin-bottom: 10px;"
 "\"><h3>Post #{post.number}:</h3>\n"
@@ -41,66 +57,86 @@ msgstr ""
 "\n"
 "</div>\n"
 
-#: main.py:71
+#: main.py:117
 msgid "There are no discussions to be shown."
 msgstr "Il n’y a pas de discussions à montrer."
 
-#: main.py:164
+#: main.py:208
+msgid "Forum URL: "
+msgstr "URL du forum : "
+
+#: main.py:222
+msgid "Username (optional): "
+msgstr "Nom d’utilisateur (facultatif) : "
+
+#: main.py:235
+msgid "Password (optional): "
+msgstr "Mot de passe (facultatif) : "
+
+#: main.py:247
+msgid "Update"
+msgstr "Mettre à jour"
+
+#: main.py:271
 msgid "Previous"
 msgstr "Précédent"
 
-#: main.py:175
+#: main.py:282
 msgid "Next"
 msgstr "Suivant"
 
-#: main.py:187
+#: main.py:294
 msgid "Goto page: "
 msgstr "Aller à la page : "
 
-#: main.py:196
+#: main.py:303
 msgid "Goto"
 msgstr "Aller"
 
-#: main.py:208
+#: main.py:315
 msgid "Search for discussions: "
 msgstr "Rechercher des discussions : "
 
-#: main.py:218
+#: main.py:325
 msgid "Search"
 msgstr "Rechercher"
 
-#: main.py:226
+#: main.py:333
 msgid "Relevance"
 msgstr "Pertinence"
 
-#: main.py:227
+#: main.py:334
 msgid "Top"
 msgstr ""
 
-#: main.py:228
+#: main.py:335
 msgid "Latest"
 msgstr "Récents"
 
-#: main.py:229
+#: main.py:336
 msgid "Oldest"
 msgstr "Anciens"
 
-#: main.py:230
+#: main.py:337
 msgid "Newest"
 msgstr "Nouveaux"
 
-#: main.py:251
+#: main.py:358
 msgid "Options"
 msgstr ""
 
-#: main.py:253
+#: main.py:360
 msgid "Reload"
 msgstr "Recharger"
 
-#: main.py:254
+#: main.py:361
+msgid "Show login space"
+msgstr "Montrer l'espace de connexion"
+
+#: main.py:362
 msgid "Clear cache"
 msgstr "Nettoyer le cache"
 
-#: main.py:255
+#: main.py:363
 msgid "Exit"
 msgstr "Quitter"

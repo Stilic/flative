@@ -44,11 +44,11 @@ def authenticate():
 
     if len(forum_url) >= 12: # minimum domain legth (http://x.x.x)
         USER.forum_url = forum_url
-        auth_status.value += "Forum URL updated. "
+        auth_status.value += _("Forum URL updated. ")
         auth_status.text_color = "green"
 
     else:
-        auth_status.value += "Forum URL is invalid. "
+        auth_status.value += _("Forum URL is invalid. ")
         auth_status.text_color = "red"
 
 
@@ -59,12 +59,13 @@ def authenticate():
                 password=password
             )
 
-            auth_status.value += "You are now logged in. "
+            auth_status.value += _("You are now logged in. ")
             auth_status.text_color = "green"
 
         else:
-            auth_status.value += "You are now browsing in guest mode (unauthenticated). "
+            auth_status.value += _("You are now browsing in guest mode (unauthenticated). ")
             auth_status.text_color = "orange"
+        AUTH_BOX.hide()
 
     except FlarumError as error:
         auth_status.value = error
@@ -195,12 +196,17 @@ def clearCache():
         pass
 
 
-AUTH_BOX = Box(APP, width="fill", layout="grid")
+AUTH_BOX = Box(APP, width="fill", layout="grid", visible=False)
+def showOrHideLogin():
+    if AUTH_BOX.visible:
+        AUTH_BOX.hide()
+    else:
+        AUTH_BOX.show()
 auth_forum_url_label = Text(AUTH_BOX,
     grid=[0, 0],
     size=10,
     align="left",
-    text="Forum URL: "
+    text=_("Forum URL: ")
 )
 
 auth_forum_url_input = TextBox(AUTH_BOX,
@@ -214,7 +220,7 @@ auth_username_label = Text(AUTH_BOX,
     grid=[0, 2],
     size=10,
     align="left",
-    text="Username (optional): "
+    text=_("Username (optional): ")
 )
 
 auth_username_input = TextBox(AUTH_BOX,
@@ -227,7 +233,7 @@ auth_password_label = Text(AUTH_BOX,
     grid=[0, 3],
     size=10,
     align="left",
-    text="Password (optional): "
+    text=_("Password (optional): ")
 )
 
 auth_password_input = TextBox(AUTH_BOX,
@@ -239,7 +245,7 @@ auth_password_input = TextBox(AUTH_BOX,
 
 auth_button = PushButton(AUTH_BOX,
     grid=[1, 4],
-    text="Update",
+    text=_("Update"),
     command=authenticate,
     pady=0,
     padx=130
@@ -353,6 +359,7 @@ menubar = MenuBar(APP,
                   toplevel=[_("Options")],
                   options=[[
                       [_("Reload"), reloadDiscussions],
+                      [_("Show login space"), showOrHideLogin],
                       [_("Clear cache"), clearCache],
                       [_("Exit"), exit]
                   ]]
