@@ -11,6 +11,9 @@ pip install -r requirements.txt
 python3 main.py
 ```
 
+### Compile
+For compile it with PyInstaller for your current platform, use `pyinstaller --onefile --noconsole --add-data locales;locales -n flative main.py`.
+
 ## Contribution
 ### Translations
 We store all locales files in `locale` folder. We use [https://poedit.net](Poedit) as our main translations editor. We planned to use Weblate in the future.

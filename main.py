@@ -8,9 +8,12 @@ from tkhtmlview import HTMLScrolledText
 from requests import Session
 from requests_cache import CachedSession
 
+from os import path
+import sys
+
 import gettext
-translate = gettext.translation("flative", os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), "locale"), fallback=True)
+bundle_dir = getattr(sys, '_MEIPASS', path.abspath(path.dirname(__file__)))
+translate = gettext.translation("flative", path.abspath(path.join(bundle_dir, 'locales')), fallback=True)
 _ = translate.gettext
 
 

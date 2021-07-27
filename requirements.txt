@@ -4,3 +4,4 @@ tkhtmlview
 
 # Optional
 requests_cache
+pyinstaller
