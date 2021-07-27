@@ -10,7 +10,7 @@ from requests_cache import CachedSession
 
 import gettext
 translate = gettext.translation("flative", os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), "locale"), fallback=False)
+    os.path.abspath(os.path.dirname(__file__)), "locale"), fallback=True)
 _ = translate.gettext
 
 
