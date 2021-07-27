@@ -4,7 +4,7 @@ from typing import List
 from pyflarum import FlarumUser, Filter
 
 from guizero import *
-from tk_html_widgets import HTMLScrolledText
+from tk_html_widgets import HTMLLabel
 
 from requests import Session
 from requests_cache import CachedSession
@@ -99,12 +99,13 @@ discussionsIdsCache = [d.id for d in USER.all_discussions()]
 discussions = ListBox(APP, items=[], height="fill", width="fill",
                       align="left", scrollbar=True, command=changeDiscussion)
 
-discussionText = HTMLScrolledText(
+discussionText = HTMLLabel(
     APP.tk)
+discussionText.bind("<1>", lambda event: discussionText.focus_set())
 APP.add_tk_widget(discussionText)
 
 menubar = MenuBar(APP, toplevel=["File"], options=[
-                  [["Reload", reloadDiscussions]]])
+                  [["Reload", reloadDiscussions], ["Exit", exit]]])
 
 reloadDiscussions()
 APP.display()
