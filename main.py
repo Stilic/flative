@@ -1,6 +1,7 @@
 from pyflarum import FlarumUser, Filter
 
 from guizero import *
+from time import sleep
 import requests_cache
 from tkhtmlview import HTMLScrolledText
 
@@ -9,7 +10,7 @@ from requests_cache import CachedSession
 
 
 APP = App(title="Flative", width=1700, height=800)
-PER_PAGINATION_GROUP = 20
+PER_PAGINATION_GROUP = 10
 MAX_PAGINATION_GROUPS = None
 USE_CACHE = True
 
@@ -23,6 +24,9 @@ USER = FlarumUser(forum_url="https://discuss.flarum.org",
 
 
 def changeDiscussion(title):
+    discussions.disable()
+    discussionText.set_html("<h1>Loading...</h1>")
+    discussionText.fit_height()
     id = discussionsIdsCache[discussions.items.index(title)]
     discussion = USER.get_discussion_by_id(id)
     posts = discussion.get_posts()
@@ -32,10 +36,13 @@ def changeDiscussion(title):
     for post in posts:
         if post.contentType == "comment":
             post_author = post.get_author()
-            html += f'''<div border-radius: 40px; padding: 20px; margin: 10px 0;"><div style="margin-bottom: 10px;"><h3>Post #{post.number}:</h3>\n<b>{post_author.username if post_author else '[deleted]'}</b> <i>on {post.createdAt.strftime(r'%H:%M:%S  %d %B %Y')}</i></div>\n<div>{post.contentHtml}</div>\n<a href="{post.url}" style="font-size: 7px;">Open original post in your browser</a></div>\n\n'''
+            html += f'''<div border-radius: 40px; padding: 20px; margin: 10px 0; background: blue;"><div style="margin-bottom: 10px;"><h3>Post #{post.number}:</h3>\n<b>{post_author.username if post_author else '[deleted]'}</b> <i>on {post.createdAt.strftime(r'%H:%M:%S  %d %B %Y')}</i></div>\n<div>{post.contentHtml}</div>\n<a href="{post.url}" style="font-size: 10px;">Open original post in your browser</a></div>\n\n'''
 
+    discussionText.tag_delete(discussionText.tag_names)
     discussionText.set_html(html, strip=False)
     discussionText.fit_height()
+    sleep(0.1)
+    discussions.enable()
 
 
 def reloadDiscussions():
