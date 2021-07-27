@@ -1,6 +1,8 @@
 from pyflarum import FlarumUser, Filter, FlarumError
 
 from guizero import *
+
+from time import sleep
 from tkhtmlview import HTMLScrolledText
 
 from requests import Session
@@ -68,6 +70,9 @@ def authenticate():
 
 
 def changeDiscussion(title):
+    discussions.disable()
+    discussionText.set_html("<h2>Loading...</h2>")
+    discussionText.fit_height()
     id = discussionsIdsCache[discussions.items.index(title)]
     discussion = USER.get_discussion_by_id(id)
     posts = discussion.get_posts()
@@ -77,10 +82,13 @@ def changeDiscussion(title):
     for post in posts:
         if post.contentType == "comment":
             post_author = post.get_author()
-            html += f'''<div style="padding: 20px; margin: 10px 0; font-size: 10px;"><div style="margin-bottom: 10px;"><h3>Post #{post.number}:</h3>\n<b>{post_author.username if post_author else '[deleted]'}</b> <i>on {post.createdAt.strftime(r'%H:%M:%S  %d %B %Y')}</i></div>\n<div>{post.contentHtml}</div>\n<a href="{post.url}" style="font-size: 7px;">Open original post in your browser</a></div>\n\n'''
+            html += f'''<div style="padding: 20px; margin: 10px 0; font-size: 10px;"><div style="margin-bottom: 10px;"><h3>Post #{post.number}:</h3>\n<b>{post_author.username if post_author else '[deleted]'}</b> <i>on {post.createdAt.strftime(r'%H:%M:%S  %d %B %Y')}</i></div>\n{post.contentHtml}\n<a href="{post.url}" style="font-size: 10px;">Open original post in your browser</a>\n\n'''
 
+    discussionText.tag_delete(discussionText.tag_names)
     discussionText.set_html(html, strip=False)
     discussionText.fit_height()
+    sleep(0.1)
+    discussions.enable()
 
 
 def reloadDiscussions():
