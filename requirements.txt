@@ -1,11 +1,6 @@
-# Fetch stuff:
 pyflarum
-
-# Obtain just text from HTML posts:
-bs4
-
-# GUI
 guizero
+tk_html_widgets
 
-# Optional:
+# Optional
 requests_cache

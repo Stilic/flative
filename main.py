@@ -1,9 +1,10 @@
+from tkinter.font import families
 from typing import List
 
-from bs4 import BeautifulSoup
-
 from pyflarum import FlarumUser, Filter
+
 from guizero import *
+from tk_html_widgets import HTMLScrolledText
 
 from requests import Session
 from requests_cache import CachedSession
@@ -19,7 +20,8 @@ if USE_CACHE:
 else:
     session_obj = Session()
 
-USER = FlarumUser(forum_url="https://discuss.flarum.org", session_object=session_obj)
+USER = FlarumUser(forum_url="https://discuss.flarum.org",
+                  session_object=session_obj)
 
 
 def changeDiscussion(title):
@@ -27,23 +29,20 @@ def changeDiscussion(title):
     discussion = USER.get_discussion_by_id(id)
     posts = discussion.get_posts()
 
-    text_posts = [] # type: List[str]
+    text_posts = []  # type: List[str]
 
     for post in posts:
-        if post.contentType == 'comment':
-            parser = BeautifulSoup(post.contentHtml, features="html.parser")
-
-            just_text = ""
-            for text in parser.find_all(text=True, recursive=True):
-                just_text += text
-
+        if post.contentType == "comment":
             author = post.get_author()
 
-            text_posts.append((post.url, author.username if author and author.username else "[deleted]", just_text))
+            text_posts.append(
+                (post.url, author.username if author and author.username else "[deleted]", post.contentHtml))
 
-    discussionText.value = ""
+    txt = ""
     for post_url, post_author, post in text_posts:
-        discussionText.value += f"({post_url}) {post_author.upper()}:\n{post}\n\n"
+        txt += f'''<i>{post_author.upper()}</i>\n{post}\n------------------------------------\n<a href="{post_url}">Open original post in your browser</a>\n\n'''
+    discussionText.set_html(txt, strip=False)
+    discussionText.fit_height()
 
 
 def reloadDiscussions():
@@ -53,12 +52,12 @@ def reloadDiscussions():
     for discussion in USER.all_discussions(Filter(page=int(pagination.value) - 1, limit=50, order_by='createdAt')):
         discussions.append(f"{discussion.id} | {discussion.title}")
         discussionsIdsCache.append(discussion.id)
-    
+
     discussions.value = discussions.items[0]
     changeDiscussion(discussions.value)
 
 
-def changePage(back: bool=False):
+def changePage(back: bool = False):
     pagination.disable()
     current_first_page = int(pagination.options[0][-1])
     current_last_page = int(pagination.options[-1][-1])
@@ -89,17 +88,23 @@ def changePage(back: bool=False):
 
 
 PAGINATION_BOX = Box(APP, width="fill", layout="grid")
-pagination = ButtonGroup(PAGINATION_BOX, grid=[1, 0], options=[str(page_number) for page_number in range(1, PER_PAGINATION_GROUP + 1)], horizontal=True, command=reloadDiscussions)
-previous_page_button = PushButton(PAGINATION_BOX, grid=[0, 0], text="Previous", align="left", command=changePage, args=[True], enabled=False)
-next_page_button = PushButton(PAGINATION_BOX, grid=[2, 0], text="Next", align="right", command=changePage, args=[False])
+pagination = ButtonGroup(PAGINATION_BOX, grid=[1, 0], options=[str(page_number) for page_number in range(
+    1, PER_PAGINATION_GROUP + 1)], horizontal=True, command=reloadDiscussions)
+previous_page_button = PushButton(PAGINATION_BOX, grid=[
+                                  0, 0], text="Previous", align="left", command=changePage, args=[True], enabled=False)
+next_page_button = PushButton(PAGINATION_BOX, grid=[
+                              2, 0], text="Next", align="right", command=changePage, args=[False])
 
 discussionsIdsCache = [d.id for d in USER.all_discussions()]
-discussions = ListBox(APP, items=[], height="fill", width="fill", align="left", scrollbar=True, command=changeDiscussion)
+discussions = ListBox(APP, items=[], height="fill", width="fill",
+                      align="left", scrollbar=True, command=changeDiscussion)
 
-discussionText = TextBox(APP, width="fill", height="fill", align="right", scrollbar=True, multiline=True, enabled=False)
+discussionText = HTMLScrolledText(
+    APP.tk, html='<h1 style="color: red; text-align: center"> Hello World </H1>')
+APP.add_tk_widget(discussionText)
 
-
-menubar = MenuBar(APP, toplevel=["File"], options=[[["Reload", reloadDiscussions]]])
+menubar = MenuBar(APP, toplevel=["File"], options=[
+                  [["Reload", reloadDiscussions]]])
 
 reloadDiscussions()
 APP.display()
