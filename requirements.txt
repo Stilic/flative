@@ -1,6 +1,6 @@
 pyflarum
 guizero
-tk_html_widgets
+tkhtmlview
 
 # Optional
 requests_cache

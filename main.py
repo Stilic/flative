@@ -2,7 +2,7 @@ from pyflarum import FlarumUser, Filter
 
 from guizero import *
 import requests_cache
-from tk_html_widgets import HTMLLabel
+from tkhtmlview import HTMLScrolledText
 
 from requests import Session
 from requests_cache import CachedSession
@@ -62,16 +62,13 @@ def changePage(back: bool = False):
     current_first_page = int(pagination.options[0][-1])
     current_last_page = int(pagination.options[-1][-1])
 
-
     if MAX_PAGINATION_GROUPS:
         max_pages = PER_PAGINATION_GROUP * MAX_PAGINATION_GROUPS
 
     else:
         max_pages = None
 
-
     pagination.clear()
-
 
     if len(goto_page.value) > 0:
         from_page = int(goto_page.value)
@@ -80,11 +77,10 @@ def changePage(back: bool = False):
         if max_pages and from_page >= max_pages - PER_PAGINATION_GROUP:
             from_page = (max_pages - PER_PAGINATION_GROUP)
             to_page = max_pages + 1
-        
+
         elif from_page < 0:
             from_page = 1
             to_page = PER_PAGINATION_GROUP
-
 
         for page in range(from_page, to_page):
             pagination.append(str(page))
@@ -92,23 +88,20 @@ def changePage(back: bool = False):
         pagination.value = goto_page.value
         goto_page.value = ""
 
-
     else:
         if back:
             if current_first_page < PER_PAGINATION_GROUP:
                 from_page = 1
                 to_page = PER_PAGINATION_GROUP
-            
+
             else:
                 from_page = current_first_page - PER_PAGINATION_GROUP
                 to_page = current_first_page
-
 
             for page in range(from_page, to_page):
                 pagination.append(str(page))
 
             pagination.value = str(from_page)
-
 
         else:
             from_page = current_last_page
@@ -119,13 +112,10 @@ def changePage(back: bool = False):
             else:
                 to_page = current_last_page + PER_PAGINATION_GROUP
 
-
             for page in range(from_page, to_page):
                 pagination.append(str(page + 1))
 
-
             pagination.value = str(from_page + 1)
-
 
     current_first_page = int(pagination.options[0][0])
     current_last_page = int(pagination.options[-1][0])
@@ -133,7 +123,6 @@ def changePage(back: bool = False):
     if max_pages:
         next_page_button.enabled = current_last_page < max_pages
     previous_page_button.enabled = current_first_page > 1
-
 
     reloadDiscussions()
 
@@ -150,112 +139,114 @@ def clearCache():
 
 PAGINATION_BOX = Box(APP, width="fill", layout="grid", align="bottom")
 pagination = ButtonGroup(PAGINATION_BOX,
-    grid=[1, 0],
-    options=[str(page_number) for page_number in range(1, PER_PAGINATION_GROUP + 1)],
-    horizontal=True,
-    command=reloadDiscussions
-)
+                         grid=[1, 0],
+                         options=[str(page_number)
+                                  for page_number in range(1, PER_PAGINATION_GROUP + 1)],
+                         horizontal=True,
+                         command=reloadDiscussions
+                         )
 
 previous_page_button = PushButton(PAGINATION_BOX,
-    grid=[0, 0],
-    text="Previous",
-    align="left",
-    command=changePage,
-    args=[True],
-    pady=2,
-    padx=2,
-    enabled=False
-)
+                                  grid=[0, 0],
+                                  text="Previous",
+                                  align="left",
+                                  command=changePage,
+                                  args=[True],
+                                  pady=2,
+                                  padx=2,
+                                  enabled=False
+                                  )
 
 next_page_button = PushButton(PAGINATION_BOX,
-    grid=[2, 0],
-    text="Next",
-    align="right",
-    command=changePage,
-    pady=2,
-    padx=2,
-    args=[False]
-)
+                              grid=[2, 0],
+                              text="Next",
+                              align="right",
+                              command=changePage,
+                              pady=2,
+                              padx=2,
+                              args=[False]
+                              )
 
 goto_page_label = Text(PAGINATION_BOX,
-    grid=[3, 0],
-    height=2,
-    size=10,
-    text="Goto page: "
-)
+                       grid=[3, 0],
+                       height=2,
+                       size=10,
+                       text="Goto page: "
+                       )
 
 goto_page = TextBox(PAGINATION_BOX,
-    grid=[4, 0]
-)
+                    grid=[4, 0]
+                    )
 
 goto_page_button = PushButton(PAGINATION_BOX,
-    grid=[5, 0],
-    text="Goto",
-    command=changePage,
-    pady=0,
-    padx=0
-)
+                              grid=[5, 0],
+                              text="Goto",
+                              command=changePage,
+                              pady=0,
+                              padx=0
+                              )
 
 
 SEARCH_BOX = Box(APP, width="fill", layout="grid")
 search_label = Text(SEARCH_BOX,
-    grid=[0, 0],
-    height=2,
-    size=10,
-    text="Search for discussions: "
-)
+                    grid=[0, 0],
+                    height=2,
+                    size=10,
+                    text="Search for discussions: "
+                    )
 
 search_box = TextBox(SEARCH_BOX,
-    grid=[1, 0],
-    width=50
-)
+                     grid=[1, 0],
+                     width=50
+                     )
 
 search_button = PushButton(SEARCH_BOX,
-    grid=[2, 0],
-    text="Search",
-    command=reloadDiscussions,
-    pady=0,
-    padx=0
-)
+                           grid=[2, 0],
+                           text="Search",
+                           command=reloadDiscussions,
+                           pady=0,
+                           padx=0
+                           )
 
 search_order_by = ButtonGroup(SEARCH_BOX,
-    options=[
-        ["Relevance", "relevance"],
-        ["Top", "commentCount"],
-        ["Latest", "-commentCount"],
-        ["Oldest", "createdAt"],
-        ["Newest", "-createdAt"],
-    ],
-    selected="relevance",
-    horizontal=True,
-    grid=[3, 0],
-    command=reloadDiscussions
-)
+                              options=[
+                                  ["Relevance", "relevance"],
+                                  ["Top", "commentCount"],
+                                  ["Latest", "-commentCount"],
+                                  ["Oldest", "createdAt"],
+                                  ["Newest", "-createdAt"],
+                              ],
+                              selected="relevance",
+                              horizontal=True,
+                              grid=[3, 0],
+                              command=reloadDiscussions
+                              )
 
 
 discussionsIdsCache = [d.id for d in USER.all_discussions()]
 discussions = ListBox(APP,
-    items=[],
-    height="fill",
-    width="fill",
-    align="left",
-    scrollbar=True,
-    command=changeDiscussion
-)
+                      items=[],
+                      height="fill",
+                      width=APP.width / 2,
+                      align="left",
+                      scrollbar=True,
+                      command=changeDiscussion
+                      )
 
 
 menubar = MenuBar(APP,
-    toplevel=["Options"],
-    options=[[
-                ["Reload", reloadDiscussions],
-                ["Clear cache", clearCache],
-                ["Exit", exit]
-            ]]
-)
+                  toplevel=["Options"],
+                  options=[[
+                      ["Reload", reloadDiscussions],
+                      ["Clear cache", clearCache],
+                      ["Exit", exit]
+                  ]]
+                  )
 
 
-discussionText = HTMLLabel(APP.tk)
-discussionText.bind("<1>", lambda _: discussionText.focus_set())
+discussionText = HTMLScrolledText(APP.tk)
+discussionText.configure(width=discussionText.winfo_reqwidth() * 2)
+discussionText.bind("<Key>", lambda e: "break")
 APP.add_tk_widget(discussionText)
 
 
