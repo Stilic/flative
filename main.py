@@ -1,9 +1,7 @@
-from tkinter.font import families
-from typing import List
-
 from pyflarum import FlarumUser, Filter
 
 from guizero import *
+import requests_cache
 from tk_html_widgets import HTMLLabel
 
 from requests import Session
@@ -11,7 +9,7 @@ from requests_cache import CachedSession
 
 
 APP = App(title="Flative", width=1700, height=800)
-PER_PAGINATION_GROUP = 15
+PER_PAGINATION_GROUP = 20
 MAX_PAGINATION_GROUPS = None
 USE_CACHE = True
 
@@ -29,86 +27,237 @@ def changeDiscussion(title):
     discussion = USER.get_discussion_by_id(id)
     posts = discussion.get_posts()
 
-    text_posts = []  # type: List[str]
+    html = ""
 
     for post in posts:
         if post.contentType == "comment":
-            text_posts.append(
-                (post.url,
-                 post.get_author().username if post.get_author(
-                 ) and post.get_author().username else "[deleted]",
-                    post.createdAt,
-                    post.number,
-                    post.contentHtml))
+            post_author = post.get_author()
+            html += f'''<div border-radius: 40px; padding: 20px; margin: 10px 0;"><div style="margin-bottom: 10px;"><h3>Post #{post.number}:</h3>\n<b>{post_author.username if post_author else '[deleted]'}</b> <i>on {post.createdAt.strftime(r'%H:%M:%S  %d %B %Y')}</i></div>\n<div>{post.contentHtml}</div>\n<a href="{post.url}" style="font-size: 7px;">Open original post in your browser</a></div>\n\n'''
 
-    txt = ""
-    for post_url, post_author, post_createdAt, post_number, post in text_posts:
-        txt += f'''<i>{post_author.upper()}</i> - {post_createdAt.year}-{post_createdAt.month}-{post_createdAt.day} - #{post_number}\n{post}\n------------------------------------\n<a href="{post_url}">Open original post in your browser</a>\n\n'''
-    discussionText.set_html(txt, strip=False)
+    discussionText.set_html(html, strip=False)
     discussionText.fit_height()
 
 
 def reloadDiscussions():
     discussions.clear()
     discussionsIdsCache.clear()
+    order_by = search_order_by.value
 
-    for discussion in USER.all_discussions(Filter(page=int(pagination.value) - 1, limit=50, order_by='createdAt')):
+    if order_by == 'relevance':
+        order_by = None
+
+    for discussion in USER.all_discussions(Filter(query=search_box.value, page=int(pagination.value) - 1, limit=50, order_by=order_by)):
         discussions.append(f"{discussion.id} | {discussion.title}")
         discussionsIdsCache.append(discussion.id)
 
-    discussions.value = discussions.items[0]
-    changeDiscussion(discussions.value)
+    if len(discussions.items) > 0:
+        discussions.value = discussions.items[0]
+        changeDiscussion(discussions.value)
+
+    else:
+        discussions.append("There are no discussions to be shown.")
 
 
 def changePage(back: bool = False):
-    pagination.disable()
     current_first_page = int(pagination.options[0][-1])
     current_last_page = int(pagination.options[-1][-1])
 
-    pagination.clear()
-
-    if back:
-        for page in range(current_first_page - PER_PAGINATION_GROUP, current_first_page):
-            pagination.append(str(page))
-
-    else:
-        for page in range(current_last_page, current_last_page + PER_PAGINATION_GROUP):
-            pagination.append(str(page + 1))
-
-    current_first_page = int(pagination.options[0][0])
-    current_last_page = int(pagination.options[-1][0])
 
     if MAX_PAGINATION_GROUPS:
         max_pages = PER_PAGINATION_GROUP * MAX_PAGINATION_GROUPS
 
-        next_page_button.enabled = current_last_page <= max_pages
+    else:
+        max_pages = None
 
+
+    pagination.clear()
+
+
+    if len(goto_page.value) > 0:
+        from_page = int(goto_page.value)
+        to_page = from_page + PER_PAGINATION_GROUP
+
+        if max_pages and from_page >= max_pages - PER_PAGINATION_GROUP:
+            from_page = (max_pages - PER_PAGINATION_GROUP)
+            to_page = max_pages + 1
+        
+        elif from_page < 0:
+            from_page = 1
+            to_page = PER_PAGINATION_GROUP
+
+
+        for page in range(from_page, to_page):
+            pagination.append(str(page))
+
+        pagination.value = goto_page.value
+        goto_page.value = ""
+
+
+    else:
+        if back:
+            if current_first_page < PER_PAGINATION_GROUP:
+                from_page = 1
+                to_page = PER_PAGINATION_GROUP
+            
+            else:
+                from_page = current_first_page - PER_PAGINATION_GROUP
+                to_page = current_first_page
+
+
+            for page in range(from_page, to_page):
+                pagination.append(str(page))
+
+            pagination.value = str(from_page)
+
+
+        else:
+            from_page = current_last_page
+
+            if max_pages and current_last_page > max_pages - PER_PAGINATION_GROUP:
+                to_page = max_pages
+
+            else:
+                to_page = current_last_page + PER_PAGINATION_GROUP
+
+
+            for page in range(from_page, to_page):
+                pagination.append(str(page + 1))
+
+
+            pagination.value = str(from_page + 1)
+
+
+    current_first_page = int(pagination.options[0][0])
+    current_last_page = int(pagination.options[-1][0])
+
+    if max_pages:
+        next_page_button.enabled = current_last_page < max_pages
     previous_page_button.enabled = current_first_page > 1
 
-    pagination.value = str(current_first_page)
-    pagination.enable()
+
     reloadDiscussions()
 
 
-PAGINATION_BOX = Box(APP, width="fill", layout="grid")
-pagination = ButtonGroup(PAGINATION_BOX, grid=[1, 0], options=[str(page_number) for page_number in range(
-    1, PER_PAGINATION_GROUP + 1)], horizontal=True, command=reloadDiscussions)
-previous_page_button = PushButton(PAGINATION_BOX, grid=[
-                                  0, 0], text="Previous", align="left", command=changePage, args=[True], enabled=False)
-next_page_button = PushButton(PAGINATION_BOX, grid=[
-                              2, 0], text="Next", align="right", command=changePage, args=[False])
+def clearCache():
+    try:
+        requests_cache.clear()
+        print("Cache was successfuly cleared.")
+
+    except FileNotFoundError as error:
+        print(f"The cache file was not found: {error}")
+        pass
+
+
+PAGINATION_BOX = Box(APP, width="fill", layout="grid", align="bottom")
+pagination = ButtonGroup(PAGINATION_BOX,
+    grid=[1, 0],
+    options=[str(page_number) for page_number in range(1, PER_PAGINATION_GROUP + 1)],
+    horizontal=True,
+    command=reloadDiscussions
+)
+
+previous_page_button = PushButton(PAGINATION_BOX,
+    grid=[0, 0],
+    text="Previous",
+    align="left",
+    command=changePage,
+    args=[True],
+    pady=2,
+    padx=2,
+    enabled=False
+)
+
+next_page_button = PushButton(PAGINATION_BOX,
+    grid=[2, 0],
+    text="Next",
+    align="right",
+    command=changePage,
+    pady=2,
+    padx=2,
+    args=[False]
+)
+
+goto_page_label = Text(PAGINATION_BOX,
+    grid=[3, 0],
+    height=2,
+    size=10,
+    text="Goto page: "
+)
+
+goto_page = TextBox(PAGINATION_BOX,
+    grid=[4, 0]
+)
+
+goto_page_button = PushButton(PAGINATION_BOX,
+    grid=[5, 0],
+    text="Goto",
+    command=changePage,
+    pady=0,
+    padx=0
+)
+
+
+SEARCH_BOX = Box(APP, width="fill", layout="grid")
+search_label = Text(SEARCH_BOX,
+    grid=[0, 0],
+    height=2,
+    size=10,
+    text="Search for discussions: "
+)
+
+search_box = TextBox(SEARCH_BOX,
+    grid=[1, 0],
+    width=50
+)
+
+search_button = PushButton(SEARCH_BOX,
+    grid=[2, 0],
+    text="Search",
+    command=reloadDiscussions,
+    pady=0,
+    padx=0
+)
+
+search_order_by = ButtonGroup(SEARCH_BOX,
+    options=[
+        ["Relevance", "relevance"],
+        ["Top", "commentCount"],
+        ["Latest", "-commentCount"],
+        ["Oldest", "createdAt"],
+        ["Newest", "-createdAt"],
+    ],
+    selected="relevance",
+    horizontal=True,
+    grid=[3, 0],
+    command=reloadDiscussions
+)
+
 
 discussionsIdsCache = [d.id for d in USER.all_discussions()]
-discussions = ListBox(APP, items=[], height="fill", width="fill",
-                      align="left", scrollbar=True, command=changeDiscussion)
+discussions = ListBox(APP,
+    items=[],
+    height="fill",
+    width="fill",
+    align="left",
+    scrollbar=True,
+    command=changeDiscussion
+)
 
-discussionText = HTMLLabel(
-    APP.tk)
-discussionText.bind("<1>", lambda event: discussionText.focus_set())
+
+menubar = MenuBar(APP,
+    toplevel=["Options"],
+    options=[[
+                ["Reload", reloadDiscussions],
+                ["Clear cache", clearCache],
+                ["Exit", exit]
+            ]]
+)
+
+
+discussionText = HTMLLabel(APP.tk)
+discussionText.bind("<1>", lambda _: discussionText.focus_set())
 APP.add_tk_widget(discussionText)
 
-menubar = MenuBar(APP, toplevel=["File"], options=[
-                  [["Reload", reloadDiscussions], ["Exit", exit]]])
 
 reloadDiscussions()
 APP.display()
