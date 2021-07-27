@@ -33,14 +33,17 @@ def changeDiscussion(title):
 
     for post in posts:
         if post.contentType == "comment":
-            author = post.get_author()
-
             text_posts.append(
-                (post.url, author.username if author and author.username else "[deleted]", post.contentHtml))
+                (post.url,
+                 post.get_author().username if post.get_author(
+                 ) and post.get_author().username else "[deleted]",
+                    post.createdAt,
+                    post.number,
+                    post.contentHtml))
 
     txt = ""
-    for post_url, post_author, post in text_posts:
-        txt += f'''<i>{post_author.upper()}</i>\n{post}\n------------------------------------\n<a href="{post_url}">Open original post in your browser</a>\n\n'''
+    for post_url, post_author, post_createdAt, post_number, post in text_posts:
+        txt += f'''<i>{post_author.upper()}</i> - {post_createdAt.year}-{post_createdAt.month}-{post_createdAt.day} - #{post_number}\n{post}\n------------------------------------\n<a href="{post_url}">Open original post in your browser</a>\n\n'''
     discussionText.set_html(txt, strip=False)
     discussionText.fit_height()
 
