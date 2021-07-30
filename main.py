@@ -58,7 +58,7 @@ def authenticate():
     try:
         if len(username) > 0 and len(password) > 0:
             USER.authenticate(
-                username=username,
+                username_or_email=username,
                 password=password
             )
 
@@ -68,7 +68,7 @@ def authenticate():
         else:
             auth_status.value += _("You are now browsing in guest mode (unauthenticated). ")
             auth_status.text_color = "orange"
-        AUTH_BOX.hide()
+
 
     except FlarumError as error:
         auth_status.value = error
@@ -80,7 +80,7 @@ def authenticate():
 
 def changeDiscussion(title):
     discussions.disable()
-    discussionText.set_html(_("<h1>Loading...</h1>"))
+    discussionText.set_html(f"<h2>{_('Loading...')}</h2>")
     discussionText.fit_height()
     id = discussionsIdsCache[discussions.items.index(title)]
     discussion = USER.get_discussion_by_id(id)
@@ -91,8 +91,7 @@ def changeDiscussion(title):
     for post in posts:
         if post.contentType == "comment":
             post_author = post.get_author()
-            html += _(
-                f'''<div padding: 20px; margin: 10px 0;"><div style="margin-bottom: 10px;"><h3>Post #{post.number}:</h3>\n<b>{post_author.username if post_author else _('[deleted]')}</b> <i>on {post.createdAt.strftime(r'%d %B %Y')} at {post.createdAt.strftime(r'%H:%M:%S')}</i></div>\n{post.contentHtml}\n<a href="{post.url}" style="font-size: 10px;">Open original post in your browser</a>\n\n''')
+            html += _(f'''<div><div style="margin-bottom: 10px;"><h3>Post #{post.number}:</h3>\n<b>{post_author.username if post_author else _('[deleted]')}</b> <i>on {post.createdAt.strftime(r'%d %B %Y')} at {post.createdAt.strftime(r'%H:%M:%S')}</i></div>\n{post.contentHtml}\n<a href="{post.url}" style="font-size: 10px;">Open original post in your browser</a>\n\n''')
 
     discussionText.tag_delete(discussionText.tag_names)
     discussionText.set_html(html, strip=False)
@@ -109,7 +108,7 @@ def reloadDiscussions():
     if order_by == 'relevance':
         order_by = None
 
-    for discussion in USER.all_discussions(Filter(query=search_input.value, page=int(pagination.value) - 1, limit=50, order_by=order_by)):
+    for discussion in USER.get_discussions(Filter(query=search_input.value, page=int(pagination.value) - 1, limit=50, order_by=order_by)):
         discussions.append(f"{discussion.id} | {discussion.title}")
         discussionsIdsCache.append(discussion.id)
 
@@ -199,12 +198,12 @@ def clearCache():
         pass
 
 
-AUTH_BOX = Box(APP, width="fill", layout="grid", visible=False)
+AUTH_SPACE = Box(APP, width="fill", visible=False)
+AUTH_BOX = Box(AUTH_SPACE, layout="grid")
 def showOrHideLogin():
-    if AUTH_BOX.visible:
-        AUTH_BOX.hide()
-    else:
-        AUTH_BOX.show()
+    AUTH_SPACE.visible = not AUTH_SPACE.visible
+
+
 auth_forum_url_label = Text(AUTH_BOX,
     grid=[0, 0],
     size=10,
@@ -223,7 +222,7 @@ auth_username_label = Text(AUTH_BOX,
     grid=[0, 2],
     size=10,
     align="left",
-    text=_("Username (optional): ")
+    text=_("Username or E-mail (optional): ")
 )
 
 auth_username_input = TextBox(AUTH_BOX,
@@ -255,7 +254,7 @@ auth_button = PushButton(AUTH_BOX,
 )
 
 auth_status = Text(AUTH_BOX,
-    grid=[1, 6],
+    grid=[1, 5],
     size=10,
     text=""
 )
@@ -347,7 +346,7 @@ search_order_by = ButtonGroup(SEARCH_BOX,
                               )
 
 
-discussionsIdsCache = [d.id for d in USER.all_discussions()]
+discussionsIdsCache = [d.id for d in USER.get_discussions()]
 discussions = ListBox(APP,
                       items=[],
                       height="fill",
@@ -362,7 +361,7 @@ menubar = MenuBar(APP,
                   toplevel=[_("Options")],
                   options=[[
                       [_("Reload"), reloadDiscussions],
-                      [_("Show login space"), showOrHideLogin],
+                      [_("Toggle authentication form"), showOrHideLogin],
                       [_("Clear cache"), clearCache],
                       [_("Exit"), exit]
                   ]]
