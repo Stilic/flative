@@ -1,4 +1,4 @@
-pyflarum
+pyflarum>=v1.0.7-beta
 guizero
 tkhtmlview
 
