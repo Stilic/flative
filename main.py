@@ -12,8 +12,10 @@ from os import path
 import sys
 
 import gettext
-bundle_dir = getattr(sys, '_MEIPASS', path.abspath(path.dirname(__file__)))
-translate = gettext.translation("flative", path.abspath(path.join(bundle_dir, 'locales')), fallback=True)
+from locale import getdefaultlocale
+
+translate = gettext.translation("flative", localedir='locales', languages=[getdefaultlocale()[0][:2]], fallback=True)
+translate.install()
 _ = translate.gettext
 
 
@@ -44,8 +46,7 @@ def authenticate():
     clearCache()
     auth_status.value = ""
 
-
-    if len(forum_url) >= 12: # minimum domain legth (http://x.x.x)
+    if len(forum_url) >= 12:  # minimum domain legth (http://x.x.x)
         USER.forum_url = forum_url
         auth_status.value += _("Forum URL updated. ")
         auth_status.text_color = "green"
@@ -53,7 +54,6 @@ def authenticate():
     else:
         auth_status.value += _("Forum URL is invalid. ")
         auth_status.text_color = "red"
-
 
     try:
         if len(username) > 0 and len(password) > 0:
@@ -66,16 +66,15 @@ def authenticate():
             auth_status.text_color = "green"
 
         else:
-            auth_status.value += _("You are now browsing in guest mode (unauthenticated). ")
+            auth_status.value += _(
+                "You are now browsing in guest mode (unauthenticated). ")
             auth_status.text_color = "orange"
-
 
     except FlarumError as error:
         auth_status.value = error
         auth_status.text_color = "red"
 
     reloadDiscussions()
-
 
 
 def changeDiscussion(title):
@@ -91,7 +90,8 @@ def changeDiscussion(title):
     for post in posts:
         if post.contentType == "comment":
             post_author = post.get_author()
-            html += _(f'''<div><div style="margin-bottom: 10px;"><h3>Post #{post.number}:</h3>\n<b>{post_author.username if post_author else _('[deleted]')}</b> <i>on {post.createdAt.strftime(r'%d %B %Y')} at {post.createdAt.strftime(r'%H:%M:%S')}</i></div>\n{post.contentHtml}\n<a href="{post.url}" style="font-size: 10px;">Open original post in your browser</a>\n\n''')
+            html += _(
+                f'''<div><div style="margin-bottom: 10px;"><h3>Post #{post.number}:</h3>\n<b>{post_author.username if post_author else _('[deleted]')}</b> <i>on {post.createdAt.strftime(r'%d %B %Y')} at {post.createdAt.strftime(r'%H:%M:%S')}</i></div>\n{post.contentHtml}\n<a href="{post.url}" style="font-size: 10px;">Open original post in your browser</a>\n\n''')
 
     discussionText.tag_delete(discussionText.tag_names)
     discussionText.set_html(html, strip=False)
@@ -194,70 +194,72 @@ def clearCache():
         USER.session.cache.clear()
         print("Cache was cleared.")
 
-    except: # not using a cache
+    except:  # not using a cache
         pass
 
 
 AUTH_SPACE = Box(APP, width="fill", visible=False)
 AUTH_BOX = Box(AUTH_SPACE, layout="grid")
+
+
 def showOrHideLogin():
     AUTH_SPACE.visible = not AUTH_SPACE.visible
 
 
 auth_forum_url_label = Text(AUTH_BOX,
-    grid=[0, 0],
-    size=10,
-    align="left",
-    text=_("Forum URL: ")
-)
+                            grid=[0, 0],
+                            size=10,
+                            align="left",
+                            text=_("Forum URL: ")
+                            )
 
 auth_forum_url_input = TextBox(AUTH_BOX,
-    grid=[1, 0],
-    align="left",
-    text="https://discuss.flarum.org",
-    width=50
-)
+                               grid=[1, 0],
+                               align="left",
+                               text="https://discuss.flarum.org",
+                               width=50
+                               )
 
 auth_username_label = Text(AUTH_BOX,
-    grid=[0, 2],
-    size=10,
-    align="left",
-    text=_("Username or E-mail (optional): ")
-)
+                           grid=[0, 2],
+                           size=10,
+                           align="left",
+                           text=_("Username or E-mail (optional): ")
+                           )
 
 auth_username_input = TextBox(AUTH_BOX,
-    grid=[1, 2],
-    align="left",
-    width=50
-)
+                              grid=[1, 2],
+                              align="left",
+                              width=50
+                              )
 
 auth_password_label = Text(AUTH_BOX,
-    grid=[0, 3],
-    size=10,
-    align="left",
-    text=_("Password (optional): ")
-)
+                           grid=[0, 3],
+                           size=10,
+                           align="left",
+                           text=_("Password (optional): ")
+                           )
 
 auth_password_input = TextBox(AUTH_BOX,
-    grid=[1, 3],
-    width=50,
-    align="left",
-    hide_text=True
-)
+                              grid=[1, 3],
+                              width=50,
+                              align="left",
+                              hide_text=True
+                              )
 
 auth_button = PushButton(AUTH_BOX,
-    grid=[1, 4],
-    text=_("Update"),
-    command=authenticate,
-    pady=0,
-    padx=130
-)
+                         grid=[1, 4],
+                         text=_("Update"),
+                         command=authenticate,
+                         pady=0,
+                         padx=130
+                         )
 
 auth_status = Text(AUTH_BOX,
-    grid=[1, 5],
-    size=10,
-    text=""
-)
+                   grid=[1, 5],
+                   size=10,
+                   text=""
+                   )
 
 
 PAGINATION_BOX = Box(APP, width="fill", layout="grid", align="bottom")
@@ -319,9 +321,9 @@ search_label = Text(SEARCH_BOX,
                     )
 
 search_input = TextBox(SEARCH_BOX,
-                     grid=[1, 0],
-                     width=50
-                     )
+                       grid=[1, 0],
+                       width=50
+                       )
 
 search_button = PushButton(SEARCH_BOX,
                            grid=[2, 0],
