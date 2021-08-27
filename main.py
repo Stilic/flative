@@ -11,12 +11,6 @@ from requests_cache import CachedSession
 from os import path
 import sys
 
-import gettext
-
-translate = gettext.translation("flative", localedir='locales', fallback=True)
-translate.install()
-_ = translate.gettext
-
 
 APP = App(title="Flative", width=1700, height=800)
 
@@ -47,11 +41,11 @@ def authenticate():
 
     if len(forum_url) >= 12:  # minimum domain legth (http://x.x.x)
         USER.forum_url = forum_url
-        auth_status.value += _("Forum URL updated. ")
+        auth_status.value += "Forum URL updated. "
         auth_status.text_color = "green"
 
     else:
-        auth_status.value += _("Forum URL is invalid. ")
+        auth_status.value += "Forum URL is invalid. "
         auth_status.text_color = "red"
 
     try:
@@ -61,12 +55,11 @@ def authenticate():
                 password=password
             )
 
-            auth_status.value += _("You are now logged in. ")
+            auth_status.value += "You are now logged in. "
             auth_status.text_color = "green"
 
         else:
-            auth_status.value += _(
-                "You are now browsing in guest mode (unauthenticated). ")
+            auth_status.value += "You are now browsing in guest mode (unauthenticated). "
             auth_status.text_color = "orange"
 
     except FlarumError as error:
@@ -78,7 +71,7 @@ def authenticate():
 
 def changeDiscussion(title):
     discussions.disable()
-    discussionText.set_html(f"<h2>{_('Loading...')}</h2>")
+    discussionText.set_html(f"<h2>'Loading...'</h2>")
     discussionText.fit_height()
     id = discussionsIdsCache[discussions.items.index(title)]
     discussion = USER.get_discussion_by_id(id)
@@ -89,8 +82,9 @@ def changeDiscussion(title):
     for post in posts:
         if post.contentType == "comment":
             post_author = post.get_author()
-            html += _(
-                f'''<div><div style="margin-bottom: 10px;"><h3>Post #{post.number}:</h3>\n<b>{post_author.username if post_author else _('[deleted]')}</b> <i>on {post.createdAt.strftime(r'%d %B %Y')} at {post.createdAt.strftime(r'%H:%M:%S')}</i></div>\n{post.contentHtml}\n<a href="{post.url}" style="font-size: 10px;">Open original post in your browser</a>\n\n''')
+            html += f'''<div><div style="margin-bottom: 10px;"><h3>Post #{post.number}:</h3>\n<b>{
+                    post_author.username if post_author 
+                    else '[deleted]'}</b> <i>on {post.createdAt.strftime(r'%d %B %Y')} at {post.createdAt.strftime(r'%H:%M:%S')}</i></div>\n{post.contentHtml}\n<a href="{post.url}" style="font-size: 10px;">Open original post in your browser</a>\n\n'''
 
     discussionText.tag_delete(discussionText.tag_names)
     discussionText.set_html(html, strip=False)
@@ -116,7 +110,7 @@ def reloadDiscussions():
         changeDiscussion(discussions.value)
 
     else:
-        discussions.append(_("There are no discussions to be shown."))
+        discussions.append("There are no discussions to be shown.")
 
 
 def changePage(back: bool = False):
@@ -209,7 +203,7 @@ auth_forum_url_label = Text(AUTH_BOX,
                             grid=[0, 0],
                             size=10,
                             align="left",
-                            text=_("Forum URL: ")
+                            text="Forum URL: "
                             )
 
 auth_forum_url_input = TextBox(AUTH_BOX,
@@ -223,7 +217,7 @@ auth_username_label = Text(AUTH_BOX,
                            grid=[0, 2],
                            size=10,
                            align="left",
-                           text=_("Username or E-mail (optional): ")
+                           text="Username or E-mail (optional): "
                            )
 
 auth_username_input = TextBox(AUTH_BOX,
@@ -236,7 +230,7 @@ auth_password_label = Text(AUTH_BOX,
                            grid=[0, 3],
                            size=10,
                            align="left",
-                           text=_("Password (optional): ")
+                           text="Password (optional): "
                            )
 
 auth_password_input = TextBox(AUTH_BOX,
@@ -248,7 +242,7 @@ auth_password_input = TextBox(AUTH_BOX,
 
 auth_button = PushButton(AUTH_BOX,
                          grid=[1, 4],
-                         text=_("Update"),
+                         text="Update",
                          command=authenticate,
                          pady=0,
                          padx=130
@@ -272,7 +266,7 @@ pagination = ButtonGroup(PAGINATION_BOX,
 
 previous_page_button = PushButton(PAGINATION_BOX,
                                   grid=[0, 0],
-                                  text=_("Previous"),
+                                  text="Previous",
                                   align="left",
                                   command=changePage,
                                   args=[True],
@@ -283,7 +277,7 @@ previous_page_button = PushButton(PAGINATION_BOX,
 
 next_page_button = PushButton(PAGINATION_BOX,
                               grid=[2, 0],
-                              text=_("Next"),
+                              text="Next",
                               align="right",
                               command=changePage,
                               pady=2,
@@ -295,7 +289,7 @@ goto_page_label = Text(PAGINATION_BOX,
                        grid=[3, 0],
                        height=2,
                        size=10,
-                       text=_("Goto page: ")
+                       text="Goto page: "
                        )
 
 goto_page = TextBox(PAGINATION_BOX,
@@ -304,7 +298,7 @@ goto_page = TextBox(PAGINATION_BOX,
 
 goto_page_button = PushButton(PAGINATION_BOX,
                               grid=[5, 0],
-                              text=_("Goto"),
+                              text="Goto",
                               command=changePage,
                               pady=0,
                               padx=0
@@ -316,7 +310,7 @@ search_label = Text(SEARCH_BOX,
                     grid=[0, 0],
                     height=2,
                     size=10,
-                    text=_("Search for discussions: ")
+                    text="Search for discussions: "
                     )
 
 search_input = TextBox(SEARCH_BOX,
@@ -326,7 +320,7 @@ search_input = TextBox(SEARCH_BOX,
 
 search_button = PushButton(SEARCH_BOX,
                            grid=[2, 0],
-                           text=_("Search"),
+                           text="Search",
                            command=reloadDiscussions,
                            pady=0,
                            padx=0
@@ -334,11 +328,11 @@ search_button = PushButton(SEARCH_BOX,
 
 search_order_by = ButtonGroup(SEARCH_BOX,
                               options=[
-                                  [_("Relevance"), "relevance"],
-                                  [_("Top"), "commentCount"],
-                                  [_("Latest"), "-commentCount"],
-                                  [_("Oldest"), "createdAt"],
-                                  [_("Newest"), "-createdAt"],
+                                  ["Relevance", "relevance"],
+                                  ["Top", "commentCount"],
+                                  ["Latest", "-commentCount"],
+                                  ["Oldest", "createdAt"],
+                                  ["Newest", "-createdAt"],
                               ],
                               selected="relevance",
                               horizontal=True,
@@ -359,12 +353,12 @@ discussions = ListBox(APP,
 
 
 menubar = MenuBar(APP,
-                  toplevel=[_("Options")],
+                  toplevel=["Options"],
                   options=[[
-                      [_("Reload"), reloadDiscussions],
-                      [_("Toggle authentication form"), showOrHideLogin],
-                      [_("Clear cache"), clearCache],
-                      [_("Exit"), exit]
+                      ["Reload", reloadDiscussions],
+                      ["Toggle authentication form", showOrHideLogin],
+                      ["Clear cache", clearCache],
+                      ["Exit", exit]
                   ]]
                   )
 
