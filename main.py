@@ -12,9 +12,8 @@ from os import path
 import sys
 
 import gettext
-from locale import getdefaultlocale
 
-translate = gettext.translation("flative", localedir='locales', languages=[getdefaultlocale()[0][:2]], fallback=True)
+translate = gettext.translation("flative", localedir='locales', fallback=True)
 translate.install()
 _ = translate.gettext
 

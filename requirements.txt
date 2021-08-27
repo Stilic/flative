@@ -1,7 +1,9 @@
-pyflarum>=v1.0.7-beta
+requests
+requests_cache
+
+pyinstaller
+pyflarum
+
+pillow
 guizero
 tkhtmlview
-
-# Optional
-requests_cache
-pyinstaller
