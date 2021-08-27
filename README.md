@@ -12,7 +12,7 @@ python3 main.py
 ```
 
 ### Compile
-For compile it with PyInstaller for your current platform, use `pyinstaller --onefile --noconsole --add-data locales;locales -n flative main.py`.
+For compile it with PyInstaller for your current platform, use `pyinstaller --onefile --noconsole -n flative main.py`.
 
 ## Contribution
 ### Translations
