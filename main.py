@@ -71,7 +71,7 @@ def authenticate():
 
 def changeDiscussion(title):
     discussions.disable()
-    discussionText.set_html(f"<h2>'Loading...'</h2>")
+    discussionText.set_html(f"<h2>Loading...</h2>")
     discussionText.fit_height()
     id = discussionsIdsCache[discussions.items.index(title)]
     discussion = USER.get_discussion_by_id(id)
