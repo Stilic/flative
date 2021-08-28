@@ -8,9 +8,6 @@ from tkhtmlview import HTMLScrolledText
 from requests import Session
 from requests_cache import CachedSession
 
-from os import path
-import sys
-
 
 APP = App(title="Flative", width=1700, height=800)
 
@@ -39,7 +36,7 @@ def authenticate():
     clearCache()
     auth_status.value = ""
 
-    if len(forum_url) >= 12:  # minimum domain legth (http://x.x.x)
+    if len(forum_url) >= 12:
         USER.forum_url = forum_url
         auth_status.value += "Forum URL updated. "
         auth_status.text_color = "green"
@@ -69,6 +66,18 @@ def authenticate():
     reloadDiscussions()
 
 
+def getContentFromType(content_type: str, content: dict) -> str:
+    # TODO: More metadata
+    if content_type == "discussionLocked":
+        return f"{'locked' if content['locked'] else 'unlocked'} the discussion"
+
+    elif content_type == "discussionStickied":
+        return f"{'stickied' if content['sticky'] else 'unstickied'} the discussion"
+
+    else:
+        return f"{content_type}"
+
+
 def changeDiscussion(title):
     discussions.disable()
     discussionText.set_html(f"<h2>Loading...</h2>")
@@ -80,11 +89,13 @@ def changeDiscussion(title):
     html = ""
 
     for post in posts:
+        post_author = post.get_author()
+
         if post.contentType == "comment":
-            post_author = post.get_author()
-            html += f'''<div><div style="margin-bottom: 10px;"><h3>Post #{post.number}:</h3>\n<b>{
-                    post_author.username if post_author 
-                    else '[deleted]'}</b> <i>on {post.createdAt.strftime(r'%d %B %Y')} at {post.createdAt.strftime(r'%H:%M:%S')}</i></div>\n{post.contentHtml}\n<a href="{post.url}" style="font-size: 10px;">Open original post in your browser</a>\n\n'''
+            html += f'''<div><div><h3>Post #{post.number}:</h3>\n<b>{post_author.username if post_author else '[deleted]'}</b> <i>on {post.createdAt.strftime(r'%d %B %Y')} at {post.createdAt.strftime(r'%H:%M:%S')}</i></div>\n{post.contentHtml}\n<a href="{post.url}" style="font-size: 10px;">Open original post in your browser</a>\n\n'''
+
+        else:
+            html += f'''<div><div><b>{post_author.username if post_author else '[deleted]'}</b> {getContentFromType(post.contentType, post.content)} <i>on {post.createdAt.strftime(r'%d %B %Y')} at {post.createdAt.strftime(r'%H:%M:%S')}</i></div>\n<a href="{post.url}" style="font-size: 10px;">Open original post in your browser</a>\n\n'''
 
     discussionText.tag_delete(discussionText.tag_names)
     discussionText.set_html(html, strip=False)
@@ -102,7 +113,7 @@ def reloadDiscussions():
         order_by = None
 
     for discussion in USER.get_discussions(Filter(query=search_input.value, page=int(pagination.value) - 1, limit=50, order_by=order_by)):
-        discussions.append(f"{discussion.id} | {discussion.title}")
+        discussions.append(f"{discussion.id} | {discussion.title} [{discussion.commentCount}]")
         discussionsIdsCache.append(discussion.id)
 
     if len(discussions.items) > 0:
